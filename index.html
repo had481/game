@@ -11,12 +11,29 @@ color:white;
 font-family:Arial;
 text-align:center;
 }
+
 #score{
 position:absolute;
 top:10px;
 left:10px;
 font-size:20px;
 }
+
+#gameOver{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+display:none;
+}
+
+button{
+padding:10px 20px;
+font-size:18px;
+cursor:pointer;
+}
+
 canvas{
 display:block;
 margin:auto;
@@ -28,25 +45,31 @@ background:#333;
 <body>
 
 <div id="score">Score: 0</div>
+
+<div id="gameOver">
+<h1>GAME OVER</h1>
+<button onclick="restartGame()">Main Lagi</button>
+</div>
+
 <canvas id="game" width="400" height="600"></canvas>
 
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-let player={ x:190, y:520 };
-
+let player={x:190,y:520};
 let blocks=[];
 let score=0;
 let roadY=0;
+let gameRunning=true;
 
 /* kontrol */
-document.addEventListener("mousemove",(e)=>{
+document.addEventListener("mousemove",e=>{
 player.x=e.clientX-10;
 });
 
-document.addEventListener("touchmove",(e)=>{
+document.addEventListener("touchmove",e=>{
 player.x=e.touches[0].clientX-10;
 });
 
@@ -73,45 +96,43 @@ function drawRoad(){
 ctx.fillStyle="#444";
 ctx.fillRect(0,0,400,600);
 
-/* garis tengah */
 ctx.fillStyle="white";
 
 for(let i=0;i<20;i++){
-ctx.fillRect(195, i*40 + roadY, 10, 20);
+ctx.fillRect(195,i*40+roadY,10,20);
 }
 
 roadY+=5;
 
-if(roadY>40){
-roadY=0;
-}
+if(roadY>40) roadY=0;
 
 }
 
 /* spawn mobil musuh */
 function spawnBlock(){
+
+if(!gameRunning) return;
+
 blocks.push({
 x:Math.random()*360,
 y:-40,
 speed:3+score/20
 });
+
 }
 
 function update(){
 
 ctx.clearRect(0,0,400,600);
 
-/* gambar jalan */
 drawRoad();
 
-/* batas player */
+/* batas layar */
 if(player.x<0) player.x=0;
 if(player.x>380) player.x=380;
 
-/* mobil player */
 drawCar(player.x,player.y,"lime");
 
-/* mobil musuh */
 blocks.forEach((b,i)=>{
 
 b.y+=b.speed;
@@ -125,10 +146,13 @@ b.x + 20 > player.x &&
 b.y < player.y + 30 &&
 b.y + 30 > player.y
 ){
-alert("Game Over. Score: "+score);
-location.reload();
+
+gameRunning=false;
+document.getElementById("gameOver").style.display="block";
+
 }
 
+/* skor */
 if(b.y>600){
 blocks.splice(i,1);
 score++;
@@ -138,6 +162,18 @@ document.getElementById("score").innerText="Score: "+score;
 });
 
 requestAnimationFrame(update);
+
+}
+
+function restartGame(){
+
+blocks=[];
+score=0;
+player.x=190;
+gameRunning=true;
+
+document.getElementById("score").innerText="Score: 0";
+document.getElementById("gameOver").style.display="none";
 
 }
 
