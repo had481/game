@@ -1,48 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Game Tebak Angka</title>
+<title>Dodge Game</title>
 <style>
 body{
-  font-family: Arial;
-  text-align: center;
-  background: #222;
-  color: white;
+margin:0;
+overflow:hidden;
+background:black;
+color:white;
+font-family:Arial;
+text-align:center;
 }
-button{
-  padding:10px;
-  margin:5px;
-  font-size:18px;
+#score{
+position:absolute;
+top:10px;
+left:10px;
+font-size:20px;
+}
+canvas{
+background:#111;
+display:block;
+margin:auto;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Game Tebak Angka</h1>
-<p>Tebak angka 1 - 10</p>
-
-<input type="number" id="tebakan">
-<br><br>
-<button onclick="cek()">Tebak</button>
-
-<p id="hasil"></p>
+<div id="score">Score: 0</div>
+<canvas id="game" width="400" height="600"></canvas>
 
 <script>
-let angka = Math.floor(Math.random()*10)+1;
 
-function cek(){
-  let tebakan = document.getElementById("tebakan").value;
-  let hasil = document.getElementById("hasil");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-  if(tebakan == angka){
-    hasil.innerHTML = "Bener! Lu hoki.";
-  } else {
-    hasil.innerHTML = "Salah! Angkanya " + angka;
-  }
+let player={
+x:180,
+y:550,
+size:20
+};
 
-  angka = Math.floor(Math.random()*10)+1;
+let blocks=[];
+let score=0;
+
+document.addEventListener("mousemove",(e)=>{
+player.x=e.clientX-10;
+});
+
+document.addEventListener("touchmove",(e)=>{
+player.x=e.touches[0].clientX-10;
+});
+
+function spawnBlock(){
+blocks.push({
+x:Math.random()*380,
+y:-20,
+size:20,
+speed:3+score/20
+});
 }
+
+function update(){
+
+ctx.clearRect(0,0,400,600);
+
+ctx.fillStyle="lime";
+ctx.fillRect(player.x,player.y,player.size,player.size);
+
+blocks.forEach((b,i)=>{
+b.y+=b.speed;
+
+ctx.fillStyle="red";
+ctx.fillRect(b.x,b.y,b.size,b.size);
+
+if(
+b.x < player.x + player.size &&
+b.x + b.size > player.x &&
+b.y < player.y + player.size &&
+b.y + b.size > player.y
+){
+alert("Game Over. Score: "+score);
+location.reload();
+}
+
+if(b.y>600){
+blocks.splice(i,1);
+score++;
+document.getElementById("score").innerText="Score: "+score;
+}
+
+});
+
+requestAnimationFrame(update);
+}
+
+setInterval(spawnBlock,1000);
+
+update();
+
 </script>
 
 </body>
