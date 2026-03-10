@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Dodge Game</title>
+<title>Game Mobil</title>
 <style>
 body{
 margin:0;
@@ -18,9 +18,9 @@ left:10px;
 font-size:20px;
 }
 canvas{
-background:#111;
 display:block;
 margin:auto;
+background:#333;
 }
 </style>
 </head>
@@ -35,15 +35,13 @@ margin:auto;
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let player={
-x:180,
-y:550,
-size:20
-};
+let player={ x:190, y:520 };
 
 let blocks=[];
 let score=0;
+let roadY=0;
 
+/* kontrol */
 document.addEventListener("mousemove",(e)=>{
 player.x=e.clientX-10;
 });
@@ -52,11 +50,49 @@ document.addEventListener("touchmove",(e)=>{
 player.x=e.touches[0].clientX-10;
 });
 
+/* gambar mobil */
+function drawCar(x,y,color){
+
+ctx.fillStyle=color;
+ctx.fillRect(x,y,20,30);
+
+ctx.fillStyle="lightblue";
+ctx.fillRect(x+4,y+5,12,8);
+
+ctx.fillStyle="black";
+ctx.fillRect(x-2,y+5,4,8);
+ctx.fillRect(x+18,y+5,4,8);
+ctx.fillRect(x-2,y+18,4,8);
+ctx.fillRect(x+18,y+18,4,8);
+
+}
+
+/* gambar jalan */
+function drawRoad(){
+
+ctx.fillStyle="#444";
+ctx.fillRect(0,0,400,600);
+
+/* garis tengah */
+ctx.fillStyle="white";
+
+for(let i=0;i<20;i++){
+ctx.fillRect(195, i*40 + roadY, 10, 20);
+}
+
+roadY+=5;
+
+if(roadY>40){
+roadY=0;
+}
+
+}
+
+/* spawn mobil musuh */
 function spawnBlock(){
 blocks.push({
-x:Math.random()*380,
-y:-20,
-size:20,
+x:Math.random()*360,
+y:-40,
 speed:3+score/20
 });
 }
@@ -65,20 +101,29 @@ function update(){
 
 ctx.clearRect(0,0,400,600);
 
-ctx.fillStyle="lime";
-ctx.fillRect(player.x,player.y,player.size,player.size);
+/* gambar jalan */
+drawRoad();
 
+/* batas player */
+if(player.x<0) player.x=0;
+if(player.x>380) player.x=380;
+
+/* mobil player */
+drawCar(player.x,player.y,"lime");
+
+/* mobil musuh */
 blocks.forEach((b,i)=>{
+
 b.y+=b.speed;
 
-ctx.fillStyle="red";
-ctx.fillRect(b.x,b.y,b.size,b.size);
+drawCar(b.x,b.y,"red");
 
+/* tabrakan */
 if(
-b.x < player.x + player.size &&
-b.x + b.size > player.x &&
-b.y < player.y + player.size &&
-b.y + b.size > player.y
+b.x < player.x + 20 &&
+b.x + 20 > player.x &&
+b.y < player.y + 30 &&
+b.y + 30 > player.y
 ){
 alert("Game Over. Score: "+score);
 location.reload();
@@ -93,6 +138,7 @@ document.getElementById("score").innerText="Score: "+score;
 });
 
 requestAnimationFrame(update);
+
 }
 
 setInterval(spawnBlock,1000);
