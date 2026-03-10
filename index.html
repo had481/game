@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Game Tebak Angka</title>
+<style>
+body{
+  font-family: Arial;
+  text-align: center;
+  background: #222;
+  color: white;
+}
+button{
+  padding:10px;
+  margin:5px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Game Tebak Angka</h1>
+<p>Tebak angka 1 - 10</p>
+
+<input type="number" id="tebakan">
+<br><br>
+<button onclick="cek()">Tebak</button>
+
+<p id="hasil"></p>
+
+<script>
+let angka = Math.floor(Math.random()*10)+1;
+
+function cek(){
+  let tebakan = document.getElementById("tebakan").value;
+  let hasil = document.getElementById("hasil");
+
+  if(tebakan == angka){
+    hasil.innerHTML = "Bener! Lu hoki.";
+  } else {
+    hasil.innerHTML = "Salah! Angkanya " + angka;
+  }
+
+  angka = Math.floor(Math.random()*10)+1;
+}
+</script>
+
+</body>
+</html>
